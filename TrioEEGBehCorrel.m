@@ -49,24 +49,24 @@ vars1.srt = exp(vars.srt);
 
 effNames = {'incentive','distractor','THP'};
 figure();
-scatterArgs = {'pearson',0,'plot_ci',1,'text',1,'plotline',1,'showzero',1,'alpha', .05};
+scatterArgs = {'pearson',0,'plot_ci',2,'text',1,'plotline',2,'showzero',1,'alpha', .05};
 varsPairs = [2 1; 2 3; 1 3];
 nEff = 1;
-nVs = 3;
+nVs = 1;
 for iEff = 1:nEff
     varsEff = structfun(@(x) sq(diff(nanmean(reshape(x,nPP,2,2,2,nTr),5),[],iEff+1)), vars1, 'UniformOutput',0); 
 
     % plot rew eff against each others
 
     for iVs = 1:nVs
-        subplot(2,2,iVs);
+        subplot(nVs,2,iVs*2-1);
 %         subplot(nVs,nEff+1,(iVs-1)*(nEff+1) + iEff)
 
 %     plot(nanmean(varsEff.srt,[3 2]), nanmean(varsEff.velres, [3 2]), 'x');
 %     lsline;
         scatterRegress(nanmean(varsEff.(varNames{varsPairs(iVs,1)}),[3 2]), nanmean(varsEff.(varNames{varsPairs(iVs,2)}), [3 2]), scatterArgs{:});
     
-
+        
         xlabel([' \Delta ' (varNames{varsPairs(iVs,1)})]);
         ylabel(['\Delta ' (varNames{varsPairs(iVs,2)})]);
         
@@ -88,6 +88,19 @@ for iVs = 1:nVs
         title('THP*incentive effect');
     end
 end
+
+%% THP*incentive effect on sRT/velres vs THP effect on distractor
+
+iEFf = 3; % drug effect
+varsDrug = structfun(@(x) sq(diff(nanmean(reshape(x,nPP,2,2,2,nTr),5),[],iEff+1)), vars1, 'UniformOutput',0); 
+figure();
+for i = 1:2
+    subplot(1,2,i);
+    scatterRegress(nanmean(varsInt.(varNames{i}),[2]), nanmean(varsDrug.(varNames{3}), [3 2]), scatterArgs{:});
+    xlabel(['THP*Incentive effect on ' (varNames{i})]);
+    ylabel(['THP effect on ' (varNames{3})]);
+end
+
 %%
 
 % [nPP distr drug]
@@ -165,6 +178,6 @@ for i = 2
         legend(h(1:2:end), {'Placebo 0p','Placebo 50p','THP 0p','THP 50p'}, 'Location','Best');
 %     end
     title(distLabels(i));
-    axis([180 403 -11 20]);
+%     axis([180 403 -11 20]);
 end
 

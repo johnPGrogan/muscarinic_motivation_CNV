@@ -1,4 +1,4 @@
-function PlotTopoAndTrace(tVals,pVals,xTimes,varargin)
+function f = PlotTopoAndTrace(tVals,pVals,xTimes,varargin)
 % function PlotTopoAndTrace(tVals,pVals,xTimes,varargin)
 % 
 % Plot a row of topoplots under a time series of those values
@@ -29,6 +29,8 @@ function PlotTopoAndTrace(tVals,pVals,xTimes,varargin)
 %           is [2 9 1])
 %       title: title for line plot
 % 
+% Returns figure handles
+% 
 % John Grogan, 2021.
 
 
@@ -54,10 +56,10 @@ params = {  'topoTimes', linspace(min(xTimes), max(xTimes), 9);
 [topoTimes, chansToPlot, alpha, xLab, yLab, doLegend, cbarArgs, mapLimits, cmap, horizSpacing, sepFigs, subplotInds,Title] = ...
     parsepvpairs(params(:,1), params(:,2), varargin{:});
 
-
+f = [];
 %% plot a row of topoplots
 if sepFigs
-    figure();
+    f(1) = figure();
 end
 
 for i = 1:length(topoTimes)
@@ -86,10 +88,9 @@ end
 iChan = find(ismember(chanNames, chansToPlot)); % repeat it
 
 if sepFigs
-    figure();
-else
-    subaxis(subplotInds(1),subplotInds(2),(subplotInds(3)-1)*subplotInds(2)+1 : subplotInds(3)*subplotInds(2));
+   f(2) = figure();
 end
+subplot(subplotInds(1),subplotInds(2),(subplotInds(3)-1)*subplotInds(2)+1 : subplotInds(3)*subplotInds(2));
 
 h = plot(xTimes, tVals(iChan,:),'LineWidth',3);
 hold on;

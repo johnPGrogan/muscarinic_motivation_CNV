@@ -5,7 +5,7 @@ set(0, 'DefaultAxesFontSize',20)
 %% do the cluster-permutation effects
 timelock = 'readyBS';
 topoTimes = [-100 300 650 1000 1350];
-timelockName = 'saccade onset'; % time from...
+timelockName = 'preparation cue onset'; % time from...
 
 load(sprintf('TrioEEGAnalyseByTrials_%s.mat',timelock), 'GNDEffects');
 
@@ -44,7 +44,7 @@ vNames = {'velres','srt','depAngle'};%,'endptVarCorr'};
 
 [allBetas, allPVals, allTVals] = deal(zeros(sum(isBetween(xTimes,timesToPlot)),61,length(vNames)));
 for i = 1:length(vNames)
-    a = load(sprintf('%s_regress_%s.mat',timelock, vNames{i}));
+    a = load(sprintf('%s_regressCluster_%s.mat',timelock, vNames{i}));
     allBetas(:,:,i) = a.betaVals(1:410,:);
     allTVals(:,:,i) = a.tVals(1:410,:);
     allPVals(:,:,i) = a.pVals(1:410,:);    

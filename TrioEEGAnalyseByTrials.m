@@ -11,7 +11,7 @@ function TrioEEGAnalyseByTrials(timelock);
 % accuracy, capture, etc), as well as individual trial analyses.
 
 %% set up stuff
-clc; clear all; eeglab; close all;
+% clc; clear all; eeglab; close all;
 % hh = findobj('tag', 'EEGLAB');
 % if isempty(hh); eeglab; end % call this to setup path and initialise
 
@@ -736,10 +736,10 @@ trialTab.CNV = nanzscore(col(meanAmplTrialsPost(:,:,:,:,30,:)));
 trialTab.P3a = nanzscore(col(meanAmplTrials(:,:,:,:,30,:)));
 toiNames = {'P3a','CNV'};
 
-extractVar = @(x,inds) [x.Coefficients.Estimate(inds), x.Coefficients.SE(inds), x.Coefficients.tStat(inds), x.Coefficients.pValue(inds)];
+extractVar = @(x,inds) [x.Coefficients.Estimate(inds), x.Coefficients.SE(inds), x.Coefficients.tStat(inds), x.Coefficients.pValue(inds), x.Coefficients.Lower(inds), x.Coefficients.Upper(inds)];
 
 formula = '%s ~ 1 + rew*distr*drug + %s + (1 | pp)';
-toiRegStats = zeros(3,2,8,4);
+toiRegStats = zeros(3,2,8,6);
 for i = 1:2
     for j = 1:3
         reg = fitglme(trialTab, sprintf(formula, varNames{j}, toiNames{i}));

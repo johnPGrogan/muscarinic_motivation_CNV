@@ -142,10 +142,10 @@ ylabels = {'residual peak velocity (deg/s)','saccadic RT (ms)','distractor pull 
      'prop capture', 'max deviation (deg)', 'prop correct'};
 
  
-plotIndivs = 0;
+plotIndivs = 1;
 
 nVars = length(varNames);
-for i = 1:nVars
+for i = 1:3
 
     % repeated measures anova
     meanVar = reshape(nanmean(vars.(varNames{i}),4), [],2,2,2);
@@ -173,6 +173,10 @@ for i = 1:nVars
         for j = 1:2
             x = (1:4) + (rand(20,4)-.5).*.1 + (3 - 2*j)/20;
             plot(x, nanmean(vars.(varNames{i})(:,:,j,:),4),'x','Color',h(j).Color,'MarkerSize',10);
+            % join up pairs?
+            for k = 1:2
+                plot(x(:,k*2-1:k*2)', nanmean(vars.(varNames{i})(:,k*2-1:k*2,j,:),4)', '-', 'Color', [h(j).Color .2]);
+            end
         end
     end
 %     if pVals(1,i)<=.05; text(0.5, 0.9, 'r','Units','Normalized','FontSize',14);end
