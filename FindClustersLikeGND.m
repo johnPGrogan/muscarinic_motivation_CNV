@@ -1,4 +1,4 @@
-function pval = FindClustersLikeGND(trueTVals, permTVals, chanLocs, tail, df)
+function pval = FindClustersLikeGND(trueTVals, permTVals, chan_hood, tail, df)
 % Function to find significant clusters after having already run a set of
 % permutation tests, using the resulting null t-value distribution
 % The code below is copied from the Mass Univariate Toolbox (DMGroppe)
@@ -8,8 +8,9 @@ function pval = FindClustersLikeGND(trueTVals, permTVals, chanLocs, tail, df)
 %   trueTVals = the t-values for the 'true' effect, i.e. without any
 %       permutation, in [nTimes, nChans] size
 %   permTVals = the t-values from the permutation tests [nTimes, nChans, nPerms]
-%   chanLocs = structure array of channel location info, in same order of
-%       channels as the data
+%   chan_hood = [nCh * nCh] symmetric binary matrix indicating which channels are
+%               neighbors. If chan_hood(a,b)=1, then Channel A and Channel
+%               B are nieghbors: spatial_neighbors(chanLocs, 0.61, [])
 %   tail = [-1, 0, or 1], the tail of the distribution/test to use. -1 is
 %       the lower tail (alt hypothesis that the effect is below the null),
 %       +1 is the upper tail (e.g. effect > 0), and 0 is two-tailed (i.e.
@@ -29,10 +30,10 @@ function pval = FindClustersLikeGND(trueTVals, permTVals, chanLocs, tail, df)
 
 %% get channel neighbours
 
-chan_dist = 0.61; % default from the toolboxes,
-head_radius = [];
-
-chan_hood = spatial_neighbors(chanLocs(1:nChans), chan_dist, head_radius);
+% chan_dist = 0.61; % default from the toolboxes,
+% head_radius = [];
+% 
+% chan_hood = spatial_neighbors(chanLocs(1:nChans), chan_dist, head_radius);
 
 %% set desired t_thresh
 
@@ -58,7 +59,6 @@ end
 mn_clust_mass = zeros(1,nPerms);
 
 parfor iPerm = 1:nPerms
-    if mod(iPerm,10)==0; disp(iPerm); end
 
     t = permTVals(:,:,iPerm)'; %[chans times] % get the permuted t-vals
 
@@ -83,8 +83,6 @@ else
 end
 fprintf('Desired family-wise error rate: %f\n',fwer);
 fprintf('Estimated actual family-wise error rate: %f\n',est_alpha);
-
-% save(['./findclusters_temp_' datestr(now, 'yymmdd_HHMMSS') '.mat'], 'mn_clust_mass','tail','df')
 
 %% get pvals
 

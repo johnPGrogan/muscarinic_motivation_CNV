@@ -1,10 +1,10 @@
 %%%% TrihexyTrioAllAnalysis
 
 % This contains details on how to replicate the analysis from the paper:
-% Grogan et al., 2021. Muscarinic receptors mediate motivation via 
+% Grogan et al., 2024. Muscarinic receptors mediate motivation via 
 % preparatory neural activity in humans.
 
-% Anonymous data are available here (LINK)
+% Anonymous data are available here (https://osf.io/zuq5c/)
 % The paths in the scripts given here will need to be updated to point to
 % where this data is saved.
 
@@ -65,6 +65,9 @@ TrioEEGAnalyseByTrials('readyBS');
 % channel against the three behavioural variables
 RegressEEGVsBeh('readyBS', [-200 1500]);
 
+% this was actually run on a cluster, to speed up, using this:
+% WholeBrainRegressPermuteParallel
+
 % and this will plot it, along with the Mass Univariate testing from above
 PlotTopoAndEffect
 
@@ -73,5 +76,18 @@ PlotTopoAndEffect
 % This will run the mediation analysis and mediated moderation
 % Change the variables 'beh' and 'eeg' to look at the other variables
 MediatedModeration
+
+%% supplemental analyses
+
+% whole-brain regressions while controlling for other 2 variables (on
+% cluster)
+% Fig 4 - supplement 1
+WholeBrainRegressPermuteParallel2
+
+
+% whole-brain regressions while controlling for eye-movements
+% (microsaccades, drift, eye-pos). no permutation testing for speed
+% Fig 4 - supplement 2
+TrioEEGBehMicrosaccades2
 
 

@@ -122,7 +122,7 @@ end
 struct2workspace(output, false); % unload struct into workspace, overwriting EEG
 xTimes = times;
 
-eegRawData = double(eegRawData); % need to make double or rmanova doesn't work
+eegRawData = single(eegRawData); % need to make double or rmanova doesn't work
 %% re-baseline?
 
 if doBaseline == 1
@@ -322,17 +322,19 @@ fill(toi(2,[1 2 2 1]), col(ylim .* [1;1])', [.5 .5 .5], 'FaceAlpha', .5, 'LineSt
 % AnimateTopoplots(sq(nanmean(grandAverage))', xTimes, 181:641, chanLocs, {''}, [], 'readyCue_voltage.gif',crameri('vik'),0);
 
 % specific times
-cmap = othercolor('PRGn11');
+% cmap = othercolor('PRGn11');
+cmap = 'jet';
 mapLimits = [-6 6];
 % toi = [100 160; 200 300];
 for i = 1:size(toi,1)
     figure();
     
     topoplot(sq(nanmean(grandAverage(:,isBetween(xTimes, toi(i,:)),:,:),[1 2]))', chanLocs(1:61),...
-            'mapLimits',mapLimits, 'colormap',cmap,...
+            'mapLimits',[-1 1]*6, 'colormap',cmap,...
             'style', 'both', 'plotrad',.55, 'headrad', .5,'emarker', {'.','k',[],1},...
             'numcontour', 6,'electrodes', 'on', 'nosedir', '+X');
-    title([num2str(round(xTimes(find(xTimes>=toi(i),1,'first')))) ' ms']);
+%     title([num2str(round(xTimes(find(xTimes>=toi(i),1,'first')))) ' ms']);
+    title(sprintf('%d:%dms', toi(i,1), toi(i,2)));
     colorbar;
 end
 
@@ -403,28 +405,54 @@ figure();
 imagep(windowSDPVals, windowSDAnova{1}.Term(2:end));
 set(gca,'XTick',1:2:length(tWindows)-1, 'XTickLabels', tWindows(1:2:end))
 
+%% do diff waves for rew, drug, rew*drug
 
-%% plot diff waves for each cond sep
+tInds = isBetween(xTimes, timesToPlot);
 
-smoothWindow =5;
-if nBins > 1
-%     eegDiff = permute(diff(nanmean(eegByCond2,[7 4]),[],3), [1,2,5,6,3,4,7]); % mean over trials and distr, diff rew
-%     diffNames = drugNames;
-    
-    eegDiff = reshape(diff(nanmean(eegByCond2,[7]),[],4), nPP, nTimes, 4, nChans); % mean over trials, distr rew
-    diffNames = drugRewNames;
-    
-%     % smooth it?
-    eegDiff = movmean(eegDiff,smoothWindow,2);
+chanInd = ismember(chanNames, 'Cz');
+% average over tr+distr together 
+eegMeans = sq(nanmean(eegByCond2(:,tInds,:,:,:,chanInd,:),[7 4])); %[pp T rew drug]
 
-    diffTitle = 'rew effect'; % change this?
-   
-    figure();
-    h = PlotEEGErrorBars(eegDiff, 'chanNames',chanNames, 'chansToPlot', {'Cz','POz'},...
-        'XTimes', xTimes, 'timesToPlot', timesToPlot, 'condNames', diffNames,...
-        'yLabels', {'\Delta \muV'},'subplot',[]);
-
+dims = [4;3]; % leave rew, drug
+eegDiff = NaN(nPP, sum(tInds), 2);
+for i = 1:2
+    eegDiff(:,:,i) = diff(sq(nanmean(eegMeans,dims(i))),[],3); % [pp T ch]
 end
+
+%%
+effNames = {'Incentive Effect', 'THP Effect'};
+figure();
+c = get(gca,'ColorOrder');
+set(gca,'ColorOrder', c([3,4,5],:),'nextplot','replacechildren');
+h = errorBarPlot(eegDiff, 'area',1,'xaxisvalues',xTimes(tInds),'alpha',.2);
+hold on;
+% fill windows too?
+fill(toi(1,[1 2 2 1]), col(ylim .* [1;1])', [.5 .5 .5], 'FaceAlpha', .2, 'LineStyle','none');
+fill(toi(2,[1 2 2 1]), col(ylim .* [1;1])', [.5 .5 .5], 'FaceAlpha', .2, 'LineStyle','none');
+xlabel('time from preparation cue (ms)');
+ylabel('difference wave \Delta \muV');
+xline(0, '--k');
+yline(0, '--k');
+legend([h{:,1}], effNames,'Location','Best');
+
+%% now plot incentive effect in each drug
+
+eegIncentiveEffects = sq(diff(eegMeans,[],3)); % [pp T drug]
+figure();
+% c = get(gca,'ColorOrder');
+% set(gca,'ColorOrder', c([1 2],:),'nextplot','replacechildren');
+h = errorBarPlot(eegIncentiveEffects, 'area',1,'xaxisvalues',xTimes(tInds),'alpha',.2);
+hold on;
+% fill windows too?
+fill(toi(1,[1 2 2 1]), col(ylim .* [1;1])', [.5 .5 .5], 'FaceAlpha', .2, 'LineStyle','none');
+fill(toi(2,[1 2 2 1]), col(ylim .* [1;1])', [.5 .5 .5], 'FaceAlpha', .2, 'LineStyle','none');
+xlabel('time from preparation cue (ms)');
+ylabel('difference wave \Delta \muV');
+xline(0, '--k');
+yline(0, '--k');
+legend([h{:,1}], drugNames,'Location','Best');
+
+
 %% use pop_ploterps
 
 % figure();
@@ -544,7 +572,7 @@ set(gca,'XTick',1:2:length(tWindows)-1, 'XTickLabels', tWindows(1:2:end))
 %% do trial wise GLM
 
 
-t = dePivot(sq(meanAmplTrials(:,:,:,:,iChan,:)),'KeepNaN',1); % get factors
+t = double(dePivot(sq(meanAmplTrials(:,:,:,:,iChan,:)),'KeepNaN',1)); % get factors
 
 % zscore, apart from DV
 t(:,2:end) = nanzscore(t(:,2:end)); % zscore IVs, not DV
@@ -559,7 +587,7 @@ psnTrialReg = fitglme(t, formula,'DummyVarCoding','effects') % run with effects 
 
 t2 =  dePivot(sq(meanAmplTrialsPost(:,:,:,:,iChan,:)),'KeepNaN',1); % get psn
 
-t.y2 = nanzscore(t2(:,end));
+t.y2 = double(nanzscore(t2(:,end)));
 formula = 'y2 ~ 1 + rew*drug*distr + (1 | pp)'; % full model plus random intercept by participant
 psnTrialReg2 = fitglme(t, formula,'DummyVarCoding','effects') % run with effects (so coefficients within predictor sum to zero)
 
@@ -732,8 +760,8 @@ load('TrioEEGBehAnalysis.mat','trialTab','varNames','ylabels');
 vNames = {'residual velocity','RT','distractor pull'};
 nVars = 3;
 
-trialTab.CNV = nanzscore(col(meanAmplTrialsPost(:,:,:,:,30,:)));
-trialTab.P3a = nanzscore(col(meanAmplTrials(:,:,:,:,30,:)));
+trialTab.CNV = double(nanzscore(col(meanAmplTrialsPost(:,:,:,:,30,:))));
+trialTab.P3a = double(nanzscore(col(meanAmplTrials(:,:,:,:,30,:))));
 toiNames = {'P3a','CNV'};
 
 extractVar = @(x,inds) [x.Coefficients.Estimate(inds), x.Coefficients.SE(inds), x.Coefficients.tStat(inds), x.Coefficients.pValue(inds), x.Coefficients.Lower(inds), x.Coefficients.Upper(inds)];
@@ -784,5 +812,18 @@ save(sprintf('trioEEGAnalyseByTrials_%s.mat', timelock), '-v7.3',...
     'suffix','doBaseline','chanNames','EEG','eegByCond','condNames','nPP',...
     'nBins','timelock','meanAmplTrialsPost','meanAmplTrials','timesToPlot',...
     'toi','plotDistr')
+
+%% save a smaller version
+
+% trim times?
+if strcmp(timelock, 'audCue_200')
+    toi = [900 1100]; % just this
+    tInds = isBetween(xTimes, toi);
+    eegByCond = eegByCond(:,tInds,:,:,:,:,:);
+    xTimes = xTimes(tInds);
+end
+
+save(sprintf('trioEEGAnalyseByTrials_%s_small.mat', timelock), '-v7.3',...
+    'xTimes','eegByCond','timesToPlot','toi','chanNames','GNDEffects')
 
 end

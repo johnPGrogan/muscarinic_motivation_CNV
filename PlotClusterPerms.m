@@ -28,8 +28,8 @@ nT = 410;
 nChans = 61;
 
 for iV = 1:nVars
-    if exist(sprintf('%s_regressCluster3_%s.mat',timelock, vNames{iV}),'file');
-%         continue; 
+    if exist(sprintf('%s_regressCluster3_%s.mat',timelock, vNames{iV}),'file')
+        continue; 
     end
 
     f = what(saveFolder);
@@ -92,7 +92,7 @@ end
 %% plot
 timelock = 'readyBS';
 topoTimes = [-100 300 650 1000 1350];
-timelockName = 'saccade onset'; % time from...
+timelockName = 'preparation cue onset'; % time from...
 
 if ~exist('othercolor','file')
     addpath '../../../../Documents/TCD/GeneralScripts/MatlabPackages/othercolor/';
@@ -108,7 +108,7 @@ yLabs = {'residual peak velocity','RT','distractor pull','endptVarCorr'};
 % figure();
 % close all;
 set(0, 'DefaultAxesFontSize',14);
-for iV = 1%:nVars
+for iV = 1:nVars
     if iV==1
         cbarArgs = {'Position',[0.0625 0.1952 0.0232 0.1905]};
     else
