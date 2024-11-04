@@ -1,9 +1,9 @@
-function PlotFigure3_S4(GNDEffects)
+function PlotFigure3_S2(GNDEffects)
 % Plot figure 3 - supplement 4
 % 
 
     if nargin==0
-        load('Figure 3 - Figure Supplement 4 - Source Data 1.mat','GNDEffects'); % cell array of GND outputs
+        load('Figure 3 - Figure Supplement 2 - Source Data 1.mat','GNDEffects'); % cell array of GND outputs
     end
 
 

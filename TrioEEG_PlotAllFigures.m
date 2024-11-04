@@ -39,7 +39,7 @@ set(0, 'DefaultAxesFontSize', 14)
     PlotFigure1(vars, varNames); %load('TrioEEG_elife_Fig1_data.mat', 'vars', 'varNames')
 
 
-%% Figure 1 - Figure Supplement 2
+%% Figure 1 - Figure Supplement 1
        
     % Figure 1 - Source Data 1.mat
     load('TrioEEGBehAnalysis.mat','vars');
@@ -97,7 +97,7 @@ set(0, 'DefaultAxesFontSize', 14)
 
     
     
-%% Figure 3 - Figure Supplement 4
+%% Figure 3 - Figure Supplement 2
 % time*channel difference waves: GND outputs (t-stat and p-values)
 % incentive, THP, incentive*THP effects
 
@@ -105,7 +105,7 @@ set(0, 'DefaultAxesFontSize', 14)
     timelock = 'readyBS';
     load(sprintf('TrioEEGAnalyseByTrials_%s.mat',timelock), 'GNDEffects');
 
-    PlotFigure3_S4(GNDEffects);   
+    PlotFigure3_S2(GNDEffects);   
 
 
 
